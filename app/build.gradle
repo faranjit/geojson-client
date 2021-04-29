@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id("io.gitlab.arturbosch.detekt").version("1.16.0")
+    id 'jacoco'
 }
 
 android {
@@ -19,16 +20,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    dataBinding {
-        enabled = true
-    }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -36,6 +38,15 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    testOptions {
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+                excludes = ['jdk.internal.*']
+            }
+        }
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -56,4 +67,60 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.activity:activity-ktx:1.2.2'
+}
+
+task checkCode {
+    dependsOn 'detekt'
+    dependsOn 'jacocoTestReport'
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = [
+            '**/R.class',
+            '**/R$*.class',
+            '**/BuildConfig.*',
+            '**/Manifest*.*',
+            '**/*Test*.*',
+            '**/com/example/databinding/*',
+            '**/com/example/generated/callback/*',
+            '**/android/databinding/*',
+            '**/androidx/databinding/*',
+            '**/di/module/*',
+            '**/*MapperImpl*.*',
+            '**/*$ViewInjector*.*',
+            '**/*$ViewBinder*.*',
+            '**/BuildConfig.*',
+            '**/*Component*.*',
+            '**/*BR*.*',
+            '**/Manifest*.*',
+            '**/*$Lambda$*.*',
+            '**/*Companion*.*',
+            '**/*MembersInjector*.*',
+            '**/*_Factory*.*',
+            '**/*_Provide*Factory*.*',
+            '**/*Extensions*.*',
+            '**/*$Result.*',
+            '**/*$Result$*.*',
+            '**/*Args*.*',
+            '**/*Directions*.*'
+    ]
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([
+            fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter),
+            fileTree(dir: "$project.rootDir/module1/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+            fileTree(dir: "$project.rootDir/module2/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+            fileTree(dir: "$project.rootDir/moduleN/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+    ]))
+    executionData.setFrom(fileTree(dir: "$buildDir", includes: [
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/code-coverage/connected/*coverage.ec"
+    ]))
 }
