@@ -1,9 +1,11 @@
 package com.faranjit.geojson.features.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import com.faranjit.geojson.MapsActivity
 import com.faranjit.geojson.R
 import com.faranjit.geojson.databinding.ActivityHomeBinding
 
@@ -19,5 +21,9 @@ class HomeActivity: AppCompatActivity() {
 
         val binding = DataBindingUtil.setContentView<ActivityHomeBinding>(this, R.layout.activity_home)
         binding.viewmodel = viewModel
+
+        binding.btnFindKiwi.setOnClickListener {
+            startActivity(Intent(this, MapsActivity::class.java))
+        }
     }
 }

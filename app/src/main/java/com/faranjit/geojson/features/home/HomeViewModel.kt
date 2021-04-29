@@ -7,7 +7,7 @@ import com.faranjit.geojson.R
 /**
  * Created by Bulent Turkmen on 26.04.2021.
  */
-class HomeViewModel: ViewModel() {
+class HomeViewModel : ViewModel() {
 
     val languageFlagObservable = ObservableInt(R.drawable.english)
 }
