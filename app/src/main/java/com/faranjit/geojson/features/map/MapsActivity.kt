@@ -1,7 +1,8 @@
-package com.faranjit.geojson
+package com.faranjit.geojson.features.map
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.faranjit.geojson.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
