@@ -14,7 +14,9 @@ class Application : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        initLanguagePack(ServiceLocator.provideHomeRepository(this).getLanguage())
+        ServiceLocator.provideHomeRepository(this).getLanguage().observeForever {
+            initLanguagePack(it)
+        }
     }
 
     // If you want to, you can read language file from your server

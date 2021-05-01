@@ -1,6 +1,8 @@
 package com.faranjit.geojson.features.home.data
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.faranjit.geojson.KEY_ENGLISH
 import com.faranjit.geojson.KEY_TURKISH
 
@@ -13,11 +15,17 @@ class HomeLocalDataSource(private val sharedPreferences: SharedPreferences) {
         private const val KEY_LANGUAGE = "language_key"
     }
 
+    private val language = MutableLiveData<String>()
+
     /**
      * Gets current language
      * @return String
      */
-    fun getLanguage() = getString(KEY_LANGUAGE, KEY_ENGLISH)!!
+    fun getLanguage(): LiveData<String> {
+        val lang = sharedPreferences.getString(KEY_LANGUAGE, KEY_ENGLISH)!!
+        language.postValue(lang)
+        return language
+    }
 
     /**
      * Changes language
@@ -26,17 +34,8 @@ class HomeLocalDataSource(private val sharedPreferences: SharedPreferences) {
      */
     fun changeLanguage(lang: String) {
         val newLang = if (lang != KEY_TURKISH) KEY_ENGLISH else lang
-        putString(KEY_LANGUAGE, newLang)
-    }
+        sharedPreferences.edit().putString(KEY_LANGUAGE, newLang).apply()
 
-    /**
-     * Gets a string value from shared preferences.
-     * @param key The name of the preference to retrieve.
-     * @param defValue Value to return if this preference does not exist. This value may be null.
-     */
-    fun getString(key: String, defValue: String?) = sharedPreferences.getString(key, defValue)
-
-    private fun putString(key: String, str: String) {
-        sharedPreferences.edit().putString(key, str).apply()
+        language.postValue(lang)
     }
 }

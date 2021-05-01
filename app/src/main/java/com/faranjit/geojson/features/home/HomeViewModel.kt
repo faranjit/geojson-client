@@ -1,11 +1,12 @@
 package com.faranjit.geojson.features.home
 
+import androidx.annotation.VisibleForTesting
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
 import com.faranjit.geojson.BaseViewModel
 import com.faranjit.geojson.KEY_ENGLISH
 import com.faranjit.geojson.KEY_TURKISH
@@ -26,35 +27,39 @@ class HomeViewModel(
     }
 
     val languageFlagObservable = ObservableInt()
-    val titleObservable = ObservableField(getString("home.title"))
-    val buttonObservable = ObservableField(getString("home.yes"))
+    val titleObservable = ObservableField<String>()
+    val buttonObservable = ObservableField<String>()
 
-    private val languageChanged = MutableLiveData<String>()
-    val languageChangedLiveData: LiveData<String>
-        get() = languageChanged
+    @Volatile
+    var language = ""
+        @VisibleForTesting set
+    var languageChangedLiveData = repository.getLanguage().switchMap {
+        language = it
 
-    var language: String = repository.getLanguage()
-        set(value) {
-            field = value
-            changeLanguage(value)
-        }
-
-    init {
-        languageFlagObservable.set(flags[language] ?: DEFAULT_LANG_FLAG)
+        liveData { emit(it) }
     }
 
-    private fun changeLanguage(lang: String) {
-        repository.changeLanguage(lang)
-        languageChanged.value = lang
-        languageFlagObservable.set(flags[language] ?: DEFAULT_LANG_FLAG)
+    /**
+     * Changes language.
+     * If current is English, it will be Turkish.
+     * If current is Turkish, it will be English.
+     */
+    fun changeLanguage() {
+        language = if (language == KEY_TURKISH) {
+            KEY_ENGLISH
+        } else {
+            KEY_TURKISH
+        }
+        repository.changeLanguage(language)
     }
 
     /**
      * Updates text of the UI elements
      */
-    fun updateTexts() {
+    fun updateTexts(lang: String) {
         titleObservable.set(getString("home.title"))
         buttonObservable.set(getString("home.yes"))
+        languageFlagObservable.set(flags[lang] ?: DEFAULT_LANG_FLAG)
     }
 }
 

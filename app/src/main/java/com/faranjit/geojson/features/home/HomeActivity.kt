@@ -7,10 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.faranjit.geojson.*
 import com.faranjit.geojson.databinding.ActivityHomeBinding
 import com.faranjit.geojson.features.map.MapsActivity
-import com.faranjit.geojson.language.LanguagePack
-import com.faranjit.geojson.language.LanguageResourceProvider
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.util.*
 
 /**
@@ -28,9 +24,11 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding.viewmodel = viewModel
+        viewModel.languageChangedLiveData.observe(this) {
+            viewModel.updateTexts(it)
+        }
 
         prepareUI()
-        viewModel.languageChangedLiveData.observe(this, this::updateLanguagePack)
     }
 
     private fun prepareUI() {
@@ -45,29 +43,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeLanguage() = if (viewModel.language == KEY_TURKISH) {
-        viewModel.language = KEY_ENGLISH
-    } else {
-        viewModel.language = KEY_TURKISH
-    }
-
-    private fun updateLanguagePack(lang: String) {
-        readNewLanguagePack(lang)
-        viewModel.updateTexts()
-    }
-
-    private fun readNewLanguagePack(lang: String) {
-        with(assets.open("lang_$lang.json")) {
-            val buffer = ByteArray(available())
-            read(buffer)
-            val json = String(buffer).trimIndent()
-            val languagePack: LanguagePack = Json {
-                ignoreUnknownKeys = true
-                encodeDefaults = true
-                isLenient = true
-            }.decodeFromString(json)
-            LanguageResourceProvider.setDictionary(languagePack.dictionary)
-            close()
-        }
+    private fun changeLanguage() {
+        viewModel.changeLanguage()
     }
 }
