@@ -1,0 +1,12 @@
+{
+  "app_name": "GeojsonClient",
+  "entities": {
+    "home": {
+      "title": "Where is the Kiwi?",
+      "yes": "Yes"
+    },
+    "map": {
+      "title": "Map"
+    }
+  }
+}

@@ -1,10 +1,12 @@
 package com.faranjit.geojson.features.home
 
+import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.faranjit.geojson.BaseViewModel
 import com.faranjit.geojson.KEY_ENGLISH
 import com.faranjit.geojson.KEY_TURKISH
 import com.faranjit.geojson.R
@@ -15,7 +17,7 @@ import com.faranjit.geojson.features.home.domain.HomeRepository
  */
 class HomeViewModel(
     private val repository: HomeRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
     companion object {
         private const val DEFAULT_LANG_FLAG = R.drawable.english
@@ -24,6 +26,8 @@ class HomeViewModel(
     }
 
     val languageFlagObservable = ObservableInt()
+    val titleObservable = ObservableField(getString("home.title"))
+    val buttonObservable = ObservableField(getString("home.yes"))
 
     private val languageChanged = MutableLiveData<String>()
     val languageChangedLiveData: LiveData<String>
@@ -43,6 +47,14 @@ class HomeViewModel(
         repository.changeLanguage(lang)
         languageChanged.value = lang
         languageFlagObservable.set(flags[language] ?: DEFAULT_LANG_FLAG)
+    }
+
+    /**
+     * Updates text of the UI elements
+     */
+    fun updateTexts() {
+        titleObservable.set(getString("home.title"))
+        buttonObservable.set(getString("home.yes"))
     }
 }
 

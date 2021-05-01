@@ -32,12 +32,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_xxlarge"
-            android:text="@string/where_is_kiwi"
+            android:text="@{viewmodel.titleObservable}"
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
             android:textColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/where_is_kiwi" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_find_kiwi"
@@ -47,14 +48,15 @@
             android:backgroundTint="@color/light_green"
             android:paddingStart="@dimen/margin_mid"
             android:paddingEnd="@dimen/margin_mid"
-            android:text="@string/yes"
+            android:text="@{viewmodel.buttonObservable}"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
             android:textColorLink="@color/white"
             app:cornerRadius="3dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="@string/yes" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
