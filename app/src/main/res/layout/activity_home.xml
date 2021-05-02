@@ -65,6 +65,6 @@
 
         <variable
             name="viewmodel"
-            type="com.faranjit.geojson.features.home.HomeViewModel" />
+            type="com.faranjit.geojson.features.home.presentation.HomeViewModel" />
     </data>
 </layout>

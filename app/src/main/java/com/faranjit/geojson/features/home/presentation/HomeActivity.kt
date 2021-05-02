@@ -1,4 +1,4 @@
-package com.faranjit.geojson.features.home
+package com.faranjit.geojson.features.home.presentation
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.faranjit.geojson.*
 import com.faranjit.geojson.databinding.ActivityHomeBinding
-import com.faranjit.geojson.features.map.MapsActivity
+import com.faranjit.geojson.features.map.presentation.KiwisActivity
 import java.util.*
 
 /**
@@ -38,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
             }
 
             btnFindKiwi.setOnClickListener {
-                startActivity(Intent(this@HomeActivity, MapsActivity::class.java))
+                startActivity(Intent(this@HomeActivity, KiwisActivity::class.java))
             }
         }
     }

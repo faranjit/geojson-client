@@ -5,6 +5,7 @@ import com.faranjit.geojson.KEY_ENGLISH
 import com.faranjit.geojson.KEY_TURKISH
 import com.faranjit.geojson.R
 import com.faranjit.geojson.features.home.domain.HomeRepository
+import com.faranjit.geojson.features.home.presentation.HomeViewModel
 import com.faranjit.geojson.getOrAwaitValue
 import com.faranjit.geojson.language.LanguagePack
 import com.faranjit.geojson.language.LanguageResourceProvider

@@ -16,6 +16,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.faranjit.geojson.R
+import com.faranjit.geojson.features.home.presentation.HomeActivity
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.AllOf.allOf
@@ -33,7 +34,7 @@ class HomeActivityTest {
 
     companion object {
         private const val PACKAGE_NAME = "com.faranjit.geojson"
-        private const val MAPS_ACTIVITY_NAME = ".features.map.MapsActivity"
+        private const val KIWIS_ACTIVITY_NAME = ".features.map.presentation.KiwisActivity"
     }
 
     @get:Rule
@@ -42,7 +43,6 @@ class HomeActivityTest {
 
     @Before
     fun setup() {
-
         Intents.init()
     }
 
@@ -59,7 +59,7 @@ class HomeActivityTest {
         // Then
         intended(
             allOf(
-                hasComponent(hasShortClassName(MAPS_ACTIVITY_NAME)),
+                hasComponent(hasShortClassName(KIWIS_ACTIVITY_NAME)),
                 toPackage(PACKAGE_NAME)
             )
         )

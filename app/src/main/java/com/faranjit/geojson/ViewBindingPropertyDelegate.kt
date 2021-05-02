@@ -37,7 +37,9 @@ class ViewBindingPropertyDelegate<T : ViewBinding>(
         if (binding == null) {
             // This must be on the main thread only
             if (Looper.myLooper() != Looper.getMainLooper()) {
-                throw IllegalThreadStateException("This cannot be called from other threads. It should be on the main thread only.")
+                throw IllegalThreadStateException(
+                    "This cannot be called from other threads. It should be on the main thread only."
+                )
             }
 
             binding = initializer(thisRef.layoutInflater)

@@ -1,4 +1,4 @@
-package com.faranjit.geojson.features.home
+package com.faranjit.geojson.features.home.presentation
 
 import androidx.annotation.VisibleForTesting
 import androidx.databinding.ObservableField

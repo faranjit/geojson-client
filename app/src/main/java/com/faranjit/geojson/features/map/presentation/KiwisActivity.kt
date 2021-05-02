@@ -1,8 +1,11 @@
-package com.faranjit.geojson.features.map
+package com.faranjit.geojson.features.map.presentation
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.faranjit.geojson.R
+import com.faranjit.geojson.ServiceLocator
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -10,17 +13,25 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class KiwisActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private val viewModel: KiwisViewModel by viewModels {
+        KiwisViewModelFactory(ServiceLocator.provideKiwiRepository())
+    }
 
     private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_kiwis)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        viewModel.kiwisLiveData.observe(this) {
+            Toast.makeText(this, it.features?.size.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -33,6 +44,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
+        viewModel.getKiwis()
+
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
