@@ -46,6 +46,14 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         mapFragment.getMapAsync(this)
 
         viewModel.markersLiveData.observe(this, this::addMarkers)
+        viewModel.kiwiFoundLiveData.observe(this) {
+            addMarker(
+                it,
+                BitmapDescriptorFactory.defaultMarker(
+                    BitmapDescriptorFactory.HUE_GREEN
+                )
+            )
+        }
     }
 
     /**
@@ -117,25 +125,26 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         lifecycleScope.launchWhenResumed {
             fusedLocationProviderClient.locationFlow(viewModel.createLocationRequest()).collect {
                 zoomToUser(it, userMarker == null)
+                viewModel.findDistanceLessThan(it, 100.0f)
             }
         }
     }
 
     private fun addMarker(marker: KiwiMarker) {
+        addMarker(
+            marker, BitmapDescriptorFactory.defaultMarker(
+                BitmapDescriptorFactory.HUE_CYAN
+            )
+        )
+    }
+
+    private fun addMarker(marker: KiwiMarker, icon: BitmapDescriptor) {
         mMap?.apply {
             addMarker(
                 MarkerOptions()
                     .position(marker.location)
                     .title(marker.title)
-                    .icon(
-                        BitmapDescriptorFactory.defaultMarker(
-                            if (marker.color == null) {
-                                BitmapDescriptorFactory.HUE_AZURE
-                            } else {
-                                viewModel.getHsvFromColor(marker.color)[0]
-                            }
-                        )
-                    )
+                    .icon(icon)
             )
         }
     }
@@ -151,11 +160,11 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
                 moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f))
             }
 
-            userMarker = addMarker(
-                MarkerOptions()
-                    .position(latLng)
-                    .title("You!")
-            )
+//            userMarker = addMarker(
+//                MarkerOptions()
+//                    .position(latLng)
+//                    .title("You!")
+//            )
         }
     }
 }
