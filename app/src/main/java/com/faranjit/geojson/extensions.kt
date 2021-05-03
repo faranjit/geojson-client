@@ -3,6 +3,7 @@ package com.faranjit.geojson
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -51,13 +52,15 @@ fun FusedLocationProviderClient.locationFlow(locationRequest: LocationRequest) =
     callbackFlow<Location> {
 
         val callback = object : LocationCallback() {
+
+            @Suppress("TooGenericExceptionCaught")
             override fun onLocationResult(result: LocationResult?) {
                 result ?: return // Ignore null responses
                 for (location in result.locations) {
                     try {
                         offer(location) // Send location to the flow
                     } catch (t: Throwable) {
-                        // Location couldn't be sent to the flow
+                        Log.e(this::class.java.canonicalName, t.message, t)
                     }
                 }
             }

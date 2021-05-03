@@ -19,6 +19,7 @@ class KiwisViewModel(
 
     companion object {
         private const val LOCATION_INTERVAL = 5000L
+        private const val DEFAULT_ARRAY_SIZE = 3
     }
 
     val searchTextObservable = ObservableField(getString("map.kiwis_info"))
@@ -59,7 +60,7 @@ class KiwisViewModel(
     fun findDistanceLessThan(location: Location, threshold: Float): FeatureModel? {
         val key = "${location.latitude.toInt()}-${location.longitude.toInt()}"
         return kiwiPoints[key]?.filter {
-            val results = FloatArray(3)
+            val results = FloatArray(DEFAULT_ARRAY_SIZE)
             Location.distanceBetween(
                 location.latitude, location.longitude,
                 it.geometry.coordinates[1] ?: 0.0, it.geometry.coordinates[0] ?: 0.0,

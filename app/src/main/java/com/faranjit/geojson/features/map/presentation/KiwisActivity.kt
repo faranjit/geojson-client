@@ -34,6 +34,10 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
 
     companion object {
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 61
+        private const val MAP_MIN_ZOOM = 6f
+        private const val MAP_MAX_ZOOM = 30f
+        private const val MAP_DEFAULT_ZOOM = 25f
+        private const val DISTANCE_THRESHOLD = 1.5f
     }
 
     private val viewModel: KiwisViewModel by viewModels {
@@ -73,8 +77,8 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         mMap?.apply {
             setOnMyLocationButtonClickListener(this@KiwisActivity)
             setOnMyLocationClickListener(this@KiwisActivity)
-            setMinZoomPreference(6.0f)
-            setMaxZoomPreference(20.0f)
+            setMinZoomPreference(MAP_MIN_ZOOM)
+            setMaxZoomPreference(MAP_MAX_ZOOM)
         }
 
         checkLocationPermission()
@@ -152,20 +156,12 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
             fusedLocationProviderClient.locationFlow(viewModel.createLocationRequest()).collect {
                 zoomToUser(it.latLng(), !zoomedToUser)
                 zoomedToUser = true
-                viewModel.findDistanceLessThan(it, 1.5f)?.let { kiwi ->
+                viewModel.findDistanceLessThan(it, DISTANCE_THRESHOLD)?.let { kiwi ->
                     updateFoundKiwi(kiwi)
                     cancel("Kiwi found, no need to seek anymore")
                 }
             }
         }
-    }
-
-    private fun addMarker(kiwiMarker: FeatureModel) {
-        addMarker(
-            kiwiMarker, BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_CYAN
-            )
-        )
     }
 
     private fun addMarker(kiwiMarker: FeatureModel, icon: BitmapDescriptor) {
@@ -186,7 +182,13 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
     }
 
     private fun addMarkers(markers: List<FeatureModel>) {
-        markers.forEach(this::addMarker)
+        markers.forEach { kiwiMarker ->
+            addMarker(
+                kiwiMarker, BitmapDescriptorFactory.defaultMarker(
+                    BitmapDescriptorFactory.HUE_CYAN
+                )
+            )
+        }
     }
 
     private fun updateFoundKiwi(kiwi: FeatureModel) {
@@ -197,20 +199,29 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
                 )
             )
 
-            zoomToUser(it.position, true, 25f)
+            zoomToUser(it.position, makeZoom = true, zoom = MAP_DEFAULT_ZOOM)
 
             viewModel.searchTextObservable.set(viewModel.getString("map.kiwis_found"))
         }
     }
 
-    private fun zoomToUser(latLng: LatLng, makeZoom: Boolean = false, zoom: Float? = null) {
+    private fun zoomToUser(
+        latLng: LatLng,
+        makeZoom: Boolean = false,
+        zoom: Float? = null
+    ) {
         mMap?.apply {
             if (makeZoom) {
-                moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom ?: 20.0f))
+                moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom ?: MAP_DEFAULT_ZOOM))
             } else {
                 moveCamera(
                     CameraUpdateFactory.newCameraPosition(
-                        CameraPosition(latLng, 61f, 30f, 0f)
+                        CameraPosition(
+                            latLng,
+                            cameraPosition.zoom,
+                            cameraPosition.tilt,
+                            cameraPosition.bearing
+                        )
                     )
                 )
             }
