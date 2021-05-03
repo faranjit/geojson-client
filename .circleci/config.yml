@@ -1,0 +1,20 @@
+version: 2.1
+
+orbs:
+  android: circleci/android@0.2.1
+
+jobs:
+  build:
+    executor: android/android
+
+    steps:
+      - checkout
+
+      - run:
+          name: chmod permissions
+          command: chmod +x ./gradlew
+
+      - run:
+          name: Check code and run tests
+          command: |
+            ./gradlew checkCode
