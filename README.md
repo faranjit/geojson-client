@@ -5,7 +5,7 @@ This app simply fetches locations, pins them on map and tracks your location. Tr
 * Used detekt for static code analysis.
 * Used jacoco to generate test coverage report(Unfornately, missing a lot)
 
-There is a gradle task named **checkCode** to run detekt and jacoco tasks. Jacoco runs just unit tests because I didn't want to struggle to run emulator on CircleCI. If you want run UI tests to you have to run *./gradlew connectedAndroidTest* command manually.
+There is a gradle task named **checkCode** to run detekt and jacoco tasks. Jacoco runs just unit tests because I didn't want to struggle to run emulator on CircleCI. If you want to run UI tests to you have to run *./gradlew connectedAndroidTest* command manually.
 
 ## Libraries and tools used
 
