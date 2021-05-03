@@ -23,6 +23,8 @@ If you want to run UI tests to you have to run *./gradlew connectedAndroidTest* 
 * [Kotlinx.Serialization](https://github.com/Kotlin/kotlinx.serialization)
 * [Google Maps](https://developers.google.com/maps/documentation/android-sdk/overview)
 
+There is no dependency injection library because there are 2 pages. I injected repository instances to view models manually providing in ```ServiceLocator``` class.
+
 ## Requirements
 
 * JDK 1.8
@@ -31,9 +33,12 @@ If you want to run UI tests to you have to run *./gradlew connectedAndroidTest* 
 * Target Android Version: API 29
 * Latest Android SDK Tools and build tools.
 
-** Running
+## Running
 * Clone this repository.
 * Open containing folder in Android Studio.
 * Click run :)
 
 Before commit changes you should run *./gradlew checkCode*. If it will be successful then you commit.
+
+## Localization
+There are 2 language files in assets folder: ```language_en.json``` and ```language_tr.json```. I didn't use strings.xml because I want to change text resources dynamically. In this app, when app starting the json file is reading with last used language key, 'en' or 'tr'. But you can change to take it from api. If you set new language resources via ```LanguageResourceProvider``` you will change it in runtime.
