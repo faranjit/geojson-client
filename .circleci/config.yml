@@ -10,21 +10,6 @@ jobs:
     steps:
       - checkout
 
-      - android/create-avd:
-          avd-name: myavd
-          system-image: system-images;android-29;default;x86
-          install: true
-        # By default, after starting up the emulator, a cache will be restored,
-        # "./gradlew assembleDebugAndroidTest" will be run and then a script
-        # will be run to wait for the emulator to start up.
-        # Specify the "post-emulator-launch-assemble-command" command to override
-        # the gradle command run, or set "wait-for-emulator" to false to disable
-        # waiting for the emulator altogether.
-      - android/start-emulator:
-          avd-name: myavd
-          no-window: true
-          restore-gradle-cache-prefix: v1a
-
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew
