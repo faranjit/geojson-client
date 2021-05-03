@@ -14,11 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.faranjit.geojson.R
-import com.faranjit.geojson.ServiceLocator
+import com.faranjit.geojson.*
+import com.faranjit.geojson.databinding.ActivityKiwisBinding
 import com.faranjit.geojson.features.map.data.FeatureModel
-import com.faranjit.geojson.latLng
-import com.faranjit.geojson.locationFlow
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -42,6 +40,8 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         KiwisViewModelFactory(ServiceLocator.provideKiwiRepository())
     }
 
+    private val binding: ActivityKiwisBinding by viewBinding(ActivityKiwisBinding::inflate)
+
     private var mMap: GoogleMap? = null
 
     private var zoomedToUser = false
@@ -50,7 +50,8 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kiwis)
+//        setContentView(R.layout.activity_kiwis)
+        binding.viewmodel = viewModel
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -198,6 +199,8 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
             )
 
             zoomToUser(it.position, true, 25f)
+
+            viewModel.searchTextObservable.set(viewModel.getString("map.kiwis_found"))
         }
     }
 

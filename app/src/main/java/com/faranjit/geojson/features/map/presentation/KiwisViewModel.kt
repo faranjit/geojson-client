@@ -1,6 +1,7 @@
 package com.faranjit.geojson.features.map.presentation
 
 import android.location.Location
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.faranjit.geojson.BaseViewModel
 import com.faranjit.geojson.features.map.data.FeatureModel
@@ -19,6 +20,8 @@ class KiwisViewModel(
     companion object {
         private const val LOCATION_INTERVAL = 5000L
     }
+
+    val searchTextObservable = ObservableField(getString("map.kiwis_info"))
 
     private val kiwiPoints: MutableMap<String, MutableList<FeatureModel>> = HashMap()
 

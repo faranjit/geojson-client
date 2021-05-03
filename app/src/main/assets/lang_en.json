@@ -7,7 +7,9 @@
     },
     "map": {
       "title": "Map",
-      "enable_gps": "Your GPS seems to be disabled, do you want to enable it?"
+      "enable_gps": "Your GPS seems to be disabled, do you want to enable it?",
+      "kiwis_info": "Little kiwis often like these safe hiding places.",
+      "kiwis_found": "You found it. Thank you so much."
     },
     "buttons": {
       "yes": "Yes",

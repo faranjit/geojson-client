@@ -7,7 +7,9 @@
     },
     "map": {
       "title": "Harita",
-      "enable_gps": "Konum ayarın kapalı. Açmak ister misin?"
+      "enable_gps": "Konum ayarın kapalı. Açmak ister misin?",
+      "kiwis_info": "Küçük kiwiler genelde güvenli saklanma yerlerinde olur.",
+      "kiwis_found": "Ve buldun. Tebrikler!"
     },
     "buttons": {
       "yes": "Evet",

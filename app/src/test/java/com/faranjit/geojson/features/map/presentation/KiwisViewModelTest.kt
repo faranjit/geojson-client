@@ -1,5 +1,6 @@
 package com.faranjit.geojson.features.map.presentation
 
+import android.location.Location
 import com.faranjit.geojson.BaseUnitTest
 import com.faranjit.geojson.Json
 import com.faranjit.geojson.features.map.data.FakeKiwiRepository
@@ -38,11 +39,32 @@ class KiwisViewModelTest : BaseUnitTest() {
 
             // When
             viewModel.getKiwis()
-            val response = viewModel.kiwisLiveData.getOrAwaitValue()
+            val markers = viewModel.markersLiveData.getOrAwaitValue()
 
             // Then
-            assertNotNull(response)
-            assertEquals(dummyResponse, response)
+            assertNotNull(markers)
+            assertEquals(dummyResponse.features, markers)
         }
+    }
+
+    @Test
+    fun shouldFindDistanceLessThanReturnsValue() {
+        // Given
+        val location = Location("flp")
+        location.latitude = 46.0
+        location.longitude = 30.770670
+        location.accuracy = 1f
+
+        // When
+        viewModel.getKiwis()
+        val distance = viewModel.findDistanceLessThan(location, 1f)
+
+        // Then
+        assertNotNull(distance)
+    }
+
+    @Test
+    fun verifyCreateLocationRequest() {
+        assertNotNull(viewModel.createLocationRequest())
     }
 }
