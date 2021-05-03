@@ -5,6 +5,7 @@ plugins {
     id 'kotlinx-serialization'
     id("io.gitlab.arturbosch.detekt").version("1.16.0")
     id 'jacoco'
+    id("org.jetbrains.dokka") version "1.4.32"
 }
 
 android {
@@ -80,11 +81,14 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.activity:activity-ktx:1.2.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0'
+
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
 }
 
 task checkCode {
     dependsOn 'detekt'
     dependsOn 'jacocoTestReport'
+    dependsOn 'dokkaHtml'
 }
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
