@@ -50,7 +50,6 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_kiwis)
         binding.viewmodel = viewModel
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
