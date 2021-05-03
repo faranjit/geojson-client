@@ -6,7 +6,12 @@
       "yes": "Evet"
     },
     "map": {
-      "title": "Harita"
+      "title": "Harita",
+      "enable_gps": "Konum ayarın kapalı. Açmak ister misin?"
+    },
+    "buttons": {
+      "yes": "Evet",
+      "no": "Hayır"
     }
   }
 }

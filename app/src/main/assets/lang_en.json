@@ -6,7 +6,12 @@
       "yes": "Yes"
     },
     "map": {
-      "title": "Map"
+      "title": "Map",
+      "enable_gps": "Your GPS seems to be disabled, do you want to enable it?"
+    },
+    "buttons": {
+      "yes": "Yes",
+      "no": "No"
     }
   }
 }

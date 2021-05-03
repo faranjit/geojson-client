@@ -7,6 +7,5 @@ import com.google.android.gms.maps.model.LatLng
  */
 data class KiwiMarker(
     val title: String?,
-    val color: String?,
     val location: LatLng
 )

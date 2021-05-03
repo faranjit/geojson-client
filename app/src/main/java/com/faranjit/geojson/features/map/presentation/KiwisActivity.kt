@@ -1,17 +1,23 @@
 package com.faranjit.geojson.features.map.presentation
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.faranjit.geojson.R
 import com.faranjit.geojson.ServiceLocator
-import com.faranjit.geojson.features.map.domain.KiwiMarker
+import com.faranjit.geojson.features.map.data.FeatureModel
+import com.faranjit.geojson.latLng
 import com.faranjit.geojson.locationFlow
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -20,7 +26,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
+
 
 class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener, OnMapReadyCallback,
@@ -35,7 +43,10 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
     }
 
     private var mMap: GoogleMap? = null
-    private var userMarker: Marker? = null
+
+    private var zoomedToUser = false
+
+    private val markers: MutableMap<String, Marker> = HashMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +57,6 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         mapFragment.getMapAsync(this)
 
         viewModel.markersLiveData.observe(this, this::addMarkers)
-        viewModel.kiwiFoundLiveData.observe(this) {
-            addMarker(
-                it,
-                BitmapDescriptorFactory.defaultMarker(
-                    BitmapDescriptorFactory.HUE_GREEN
-                )
-            )
-        }
     }
 
     /**
@@ -80,7 +83,7 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
     override fun onMyLocationButtonClick() = false
 
     override fun onMyLocationClick(location: Location) {
-        zoomToUser(location, true)
+        zoomToUser(location.latLng(), true)
     }
 
     override fun onRequestPermissionsResult(
@@ -91,7 +94,7 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLocations()
+                checkLocationEnabled()
             } else {
                 finish()
             }
@@ -105,13 +108,36 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             mMap?.isMyLocationEnabled = true
-            getLocations()
+            checkLocationEnabled()
         } else {
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
             )
         }
+    }
+
+    private fun checkLocationEnabled() {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            getLocations()
+        } else {
+            askEnableLocation()
+        }
+    }
+
+    private fun askEnableLocation() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(viewModel.getString("map.enable_gps"))
+            .setCancelable(false)
+            .setPositiveButton(viewModel.getString("buttons.yes")) { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+            .setNegativeButton(viewModel.getString("buttons.no")) { dialog, _ ->
+                dialog.cancel()
+            }
+        val alert: AlertDialog = builder.create()
+        alert.show()
     }
 
     private fun getLocations() {
@@ -124,47 +150,68 @@ class KiwisActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickList
     private fun listenLocationUpdate(fusedLocationProviderClient: FusedLocationProviderClient) {
         lifecycleScope.launchWhenResumed {
             fusedLocationProviderClient.locationFlow(viewModel.createLocationRequest()).collect {
-                zoomToUser(it, userMarker == null)
-                viewModel.findDistanceLessThan(it, 100.0f)
+                zoomToUser(it.latLng(), !zoomedToUser)
+                zoomedToUser = true
+                viewModel.findDistanceLessThan(it, 1.5f)?.let { kiwi ->
+                    updateFoundKiwi(kiwi)
+                    cancel("Kiwi found, no need to seek anymore")
+                }
             }
         }
     }
 
-    private fun addMarker(marker: KiwiMarker) {
+    private fun addMarker(kiwiMarker: FeatureModel) {
         addMarker(
-            marker, BitmapDescriptorFactory.defaultMarker(
+            kiwiMarker, BitmapDescriptorFactory.defaultMarker(
                 BitmapDescriptorFactory.HUE_CYAN
             )
         )
     }
 
-    private fun addMarker(marker: KiwiMarker, icon: BitmapDescriptor) {
-        mMap?.apply {
-            addMarker(
-                MarkerOptions()
-                    .position(marker.location)
-                    .title(marker.title)
-                    .icon(icon)
+    private fun addMarker(kiwiMarker: FeatureModel, icon: BitmapDescriptor) {
+        if (kiwiMarker.geometry.coordinates.filterNotNull().isNotEmpty()) {
+            val latLng = LatLng(
+                kiwiMarker.geometry.coordinates[1]!!,
+                kiwiMarker.geometry.coordinates[0]!!
             )
+            mMap?.apply {
+                markers[kiwiMarker.properties.deviceId] = addMarker(
+                    MarkerOptions()
+                        .position(latLng)
+                        .title(kiwiMarker.properties.deviceName)
+                        .icon(icon)
+                )
+            }
         }
     }
 
-    private fun addMarkers(markers: List<KiwiMarker>) {
+    private fun addMarkers(markers: List<FeatureModel>) {
         markers.forEach(this::addMarker)
     }
 
-    private fun zoomToUser(location: Location, zoom: Boolean = false) {
-        mMap?.apply {
-            val latLng = LatLng(location.latitude, location.longitude)
-            if (zoom) {
-                moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f))
-            }
+    private fun updateFoundKiwi(kiwi: FeatureModel) {
+        markers[kiwi.properties.deviceId]?.let {
+            it.setIcon(
+                BitmapDescriptorFactory.defaultMarker(
+                    BitmapDescriptorFactory.HUE_GREEN
+                )
+            )
 
-//            userMarker = addMarker(
-//                MarkerOptions()
-//                    .position(latLng)
-//                    .title("You!")
-//            )
+            zoomToUser(it.position, true, 25f)
+        }
+    }
+
+    private fun zoomToUser(latLng: LatLng, makeZoom: Boolean = false, zoom: Float? = null) {
+        mMap?.apply {
+            if (makeZoom) {
+                moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom ?: 20.0f))
+            } else {
+                moveCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(latLng, 61f, 30f, 0f)
+                    )
+                )
+            }
         }
     }
 }

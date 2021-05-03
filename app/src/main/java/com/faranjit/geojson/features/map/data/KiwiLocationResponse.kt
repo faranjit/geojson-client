@@ -19,9 +19,9 @@ data class FeatureModel(
     @SerialName("type")
     val type: String? = null,
     @SerialName("geometry")
-    val geometry: GeometryModel? = null,
+    val geometry: GeometryModel,
     @SerialName("properties")
-    val properties: PropertiesModel? = null
+    val properties: PropertiesModel
 )
 
 @Serializable
@@ -35,9 +35,9 @@ data class GeometryModel(
 @Serializable
 data class PropertiesModel(
     @SerialName("deviceId")
-    val deviceId: String? = null,
+    val deviceId: String,
     @SerialName("deviceName")
-    val deviceName: String? = null,
+    val deviceName: String,
     @SerialName("color")
     val color: String? = null
 )
